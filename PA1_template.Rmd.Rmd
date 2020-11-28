@@ -1,0 +1,88 @@
+---
+title: "PA1_template.Rmd"
+author: "Marcos Melendez"
+date: "11/27/2020"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Show any code that is needed to load the data and process and transform
+
+```{r fig.show= 'hide'}
+activity <- read.csv("C:/Users/melen/Desktop/Exploratory Data Analysis//activity.csv", header = TRUE)
+
+View(activity)
+
+dim(activity)
+
+str(activity)
+
+summary(activity)
+head(activity)
+tail(activity)
+```
+
+# What is mean total number of steps taken per day?
+
+
+```{r fig.show= 'hide'} 
+
+total_number_of_steps <- with(activity, tapply(steps, as.factor(activity$date), sum, na.rm = T))
+
+
+summary(total_number_of_steps)
+
+filtered_steps <- activity[!is.na(activity$steps),]
+
+```
+
+```{r}
+#Histogram
+hist(total_number_of_steps, main = "Number of steps per day", xlab = "Total number of steps")
+
+#Report the the mean and median of the total number of steps taken per day
+
+summary(total_number_of_steps)
+```
+
+# What is the average daily activity pattern?
+
+```{r}
+mean_steps <- with(filtered_steps, tapply(steps, filtered_steps$interval, mean))
+
+#mean_steps <- with(activity, tapply(steps, filtered_steps$interval, mean))
+
+interval <- levels(as.factor(filtered_steps$interval))
+
+plot(interval, mean_steps, type = "l", main = "Average number of steps", xlab = "interval", ylab = "Mean of steps")
+```
+
+
+# Imputing missing values
+```{r}
+length(filtered_steps$steps)
+```
+
+# Devise a strategy to fill all of the missing values in the data set
+
+```{r fig.show= 'hide'}
+missing_data <- activity[is.na(activity$steps),]
+
+newdataset <- rbind(filtered_steps, missing_data)
+table <- data.frame(mean_steps, interval)
+
+
+```
+
+# Are there differences in activity patterns between weekdays and weekends
+
+library(ggplot2)
+
+newdataset$days <- weekdays(as.Date(newdataset$date))
+
+
